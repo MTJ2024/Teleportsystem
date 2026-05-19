@@ -126,8 +126,13 @@ function closeUI() {
 }
 
 function setActivePoint(point) {
-    STATE.activePoint = (point === 'exitp') ? 'exitp' : 'entry';
+    if (point !== 'entry' && point !== 'exitp') return;
+    STATE.activePoint = point;
     $$('.point-card').forEach(c => c.classList.toggle('active-point', c.dataset.point === STATE.activePoint));
+}
+
+function getReturnEnabled(interaction) {
+    return !(interaction && interaction.returnEnabled === false);
 }
 
 async function quickSetCoordsFromEnter(e) {
@@ -339,7 +344,7 @@ function openEditor(door) {
     // Basis-Felder
     $('#f_label').value   = STATE.editing.label || '';
     $('#f_enabled').checked = STATE.editing.enabled !== false;
-    $('#f_return').checked = STATE.editing.interaction?.returnEnabled !== false;
+    $('#f_return').checked = getReturnEnabled(STATE.editing.interaction);
     $('#f_vis').value     = STATE.editing.visibility || STATE.cfg.defaultR;
     $('#f_visLabel').textContent = $('#f_vis').value + 'm';
 
@@ -550,7 +555,7 @@ async function saveCurrent() {
         if (!d.access.job || !d.access.license) { alert('Bitte Job UND Lizenz auswählen.'); return; }
     }
     d.interaction = d.interaction || {};
-    d.interaction.returnEnabled = d.interaction.returnEnabled !== false;
+    d.interaction.returnEnabled = getReturnEnabled(d.interaction);
 
     await nui('mtj:saveDoor', d);
     const fresh = await nui('mtj:refresh', {});

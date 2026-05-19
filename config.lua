@@ -79,14 +79,14 @@ Config.FadeDuration      = 800              -- ms
 -- ========================================================
 -- https://docs.fivem.net/docs/game-references/markers/
 Config.MarkerPresets = {
-    { id = 'arrow_down', label = 'Pfeil nach unten',  markerType = 27, size = vec3(1.0, 1.0, 0.5),  bobUpAndDown = false, rotate = true  },
-    { id = 'cylinder',   label = 'Zylinder',           markerType = 1,  size = vec3(1.0, 1.0, 1.0),  bobUpAndDown = false, rotate = false },
-    { id = 'ring',       label = 'Ring (boden)',       markerType = 25, size = vec3(1.2, 1.2, 1.2),  bobUpAndDown = false, rotate = true  },
-    { id = 'arrow_up',   label = 'Pfeil aufwärts',     markerType = 6,  size = vec3(0.8, 0.8, 0.8),  bobUpAndDown = true,  rotate = false },
-    { id = 'house',      label = 'Haus-Icon',          markerType = 36, size = vec3(0.8, 0.8, 0.8),  bobUpAndDown = false, rotate = false },
-    { id = 'crown',      label = 'Krone',              markerType = 22, size = vec3(0.6, 0.6, 0.6),  bobUpAndDown = true,  rotate = false },
-    { id = 'chevron',    label = 'Doppel-Pfeil',       markerType = 7,  size = vec3(1.0, 1.0, 0.5),  bobUpAndDown = true,  rotate = false },
-    { id = 'invisible',  label = 'Unsichtbar (nur ox_target)', markerType = -1, size = vec3(1.0, 1.0, 1.0), bobUpAndDown = false, rotate = false }
+    { id = 'arrow_down', label = 'Pfeil nach unten',  markerType = 27, size = {x=1.0, y=1.0, z=0.5},  bobUpAndDown = false, rotate = true  },
+    { id = 'cylinder',   label = 'Zylinder',           markerType = 1,  size = {x=1.0, y=1.0, z=1.0},  bobUpAndDown = false, rotate = false },
+    { id = 'ring',       label = 'Ring (boden)',       markerType = 25, size = {x=1.2, y=1.2, z=1.2},  bobUpAndDown = false, rotate = true  },
+    { id = 'arrow_up',   label = 'Pfeil aufwärts',     markerType = 6,  size = {x=0.8, y=0.8, z=0.8},  bobUpAndDown = true,  rotate = false },
+    { id = 'house',      label = 'Haus-Icon',          markerType = 36, size = {x=0.8, y=0.8, z=0.8},  bobUpAndDown = false, rotate = false },
+    { id = 'crown',      label = 'Krone',              markerType = 22, size = {x=0.6, y=0.6, z=0.6},  bobUpAndDown = true,  rotate = false },
+    { id = 'chevron',    label = 'Doppel-Pfeil',       markerType = 7,  size = {x=1.0, y=1.0, z=0.5},  bobUpAndDown = true,  rotate = false },
+    { id = 'invisible',  label = 'Unsichtbar (nur ox_target)', markerType = -1, size = {x=1.0, y=1.0, z=1.0}, bobUpAndDown = false, rotate = false }
 }
 
 -- ========================================================
@@ -111,7 +111,8 @@ Config.NpcPresets = {
     { id = 'security', label = 'Security / Wache', model = 's_m_m_security_01' },
     { id = 'business', label = 'Geschäftsmann',     model = 'a_m_y_business_01' },
     { id = 'doctor',   label = 'Arzt',              model = 's_m_m_doctor_01'   },
-    { id = 'mechanic', label = 'Mechaniker',        model = 's_m_y_xmech_02'    }
+    { id = 'mechanic', label = 'Mechaniker',        model = 's_m_y_xmech_02'    },
+    { id = 'cop',      label = 'Polizist',          model = 's_m_y_cop_01'      }
 }
 Config.NpcInvincible = true
 Config.NpcFreeze     = true

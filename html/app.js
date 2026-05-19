@@ -39,6 +39,52 @@ async function nui(name, data={}) {
 }
 
 // ==========================================================
+//  FALLBACK PRESETS (used when server sends empty config)
+// ==========================================================
+const FALLBACK_MARKERS = [
+    { id: 'arrow_down', label: 'Pfeil nach unten',  markerType: 27 },
+    { id: 'cylinder',   label: 'Zylinder',           markerType: 1  },
+    { id: 'ring',       label: 'Ring (Boden)',       markerType: 25 },
+    { id: 'arrow_up',   label: 'Pfeil aufwärts',     markerType: 6  },
+    { id: 'house',      label: 'Haus-Icon',          markerType: 36 },
+    { id: 'crown',      label: 'Krone',              markerType: 22 },
+    { id: 'chevron',    label: 'Doppel-Pfeil',       markerType: 7  },
+    { id: 'invisible',  label: 'Unsichtbar',         markerType: -1 }
+];
+const FALLBACK_COLORS = [
+    { id: 'white',  label: 'Weiß',   rgb: [255,255,255] },
+    { id: 'red',    label: 'Rot',    rgb: [220,50,50]   },
+    { id: 'blue',   label: 'Blau',   rgb: [50,130,220]  },
+    { id: 'green',  label: 'Grün',   rgb: [60,200,90]   },
+    { id: 'yellow', label: 'Gelb',   rgb: [240,200,50]  },
+    { id: 'purple', label: 'Lila',   rgb: [160,70,200]  },
+    { id: 'orange', label: 'Orange', rgb: [240,130,40]  },
+    { id: 'cyan',   label: 'Türkis', rgb: [50,220,220]  }
+];
+const FALLBACK_NPCS = [
+    { id: 'security', label: 'Security / Wache' },
+    { id: 'business', label: 'Geschäftsmann'    },
+    { id: 'doctor',   label: 'Arzt'             },
+    { id: 'mechanic', label: 'Mechaniker'       },
+    { id: 'cop',      label: 'Polizist'         }
+];
+const FALLBACK_LICENSES = [
+    { id: 'drive',       label: 'Führerschein (Auto)'      },
+    { id: 'drive_bike',  label: 'Führerschein (Motorrad)'  },
+    { id: 'drive_truck', label: 'Führerschein (LKW)'       },
+    { id: 'weapon',      label: 'Waffenschein'             },
+    { id: 'pilot',       label: 'Pilotenschein'            }
+];
+
+function applyConfigFallbacks(cfg) {
+    if (!Array.isArray(cfg.markers)  || cfg.markers.length  === 0) cfg.markers  = FALLBACK_MARKERS;
+    if (!Array.isArray(cfg.colors)   || cfg.colors.length   === 0) cfg.colors   = FALLBACK_COLORS;
+    if (!Array.isArray(cfg.npcs)     || cfg.npcs.length     === 0) cfg.npcs     = FALLBACK_NPCS;
+    if (!Array.isArray(cfg.licenses) || cfg.licenses.length === 0) cfg.licenses = FALLBACK_LICENSES;
+    return cfg;
+}
+
+// ==========================================================
 //  OPEN / CLOSE
 // ==========================================================
 window.addEventListener('message', (e) => {
@@ -46,7 +92,7 @@ window.addEventListener('message', (e) => {
     if (m.action === 'open') {
         STATE.doors = Array.isArray(m.doors) ? m.doors : [];
         STATE.jobs  = Array.isArray(m.jobs)  ? m.jobs  : [];
-        STATE.cfg   = Object.assign(STATE.cfg, m.config || {});
+        STATE.cfg   = applyConfigFallbacks(Object.assign(STATE.cfg, m.config || {}));
         document.body.classList.remove('hidden');
         if (!STATE.booted) { bindStaticListeners(); STATE.booted = true; }
         renderJobsDropdown();
@@ -266,6 +312,10 @@ function openEditor(door) {
     buildChipRows('exitp');
     fillPointCard('entry');
     fillPointCard('exitp');
+
+    // Dropdowns immer frisch befüllen
+    renderJobsDropdown();
+    renderLicensesDropdown();
 
     // Access
     const a = STATE.editing.access || { type: 'public' };

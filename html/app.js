@@ -68,6 +68,7 @@ const FALLBACK_COLORS = [
 const FALLBACK_NPCS = [
     { id: 'security', label: 'Security / Wache' },
     { id: 'business', label: 'Geschäftsmann'    },
+    { id: 'valet',    label: 'Valet / Parkservice' },
     { id: 'doctor',   label: 'Arzt'             },
     { id: 'mechanic', label: 'Mechaniker'       },
     { id: 'cop',      label: 'Polizist'         }

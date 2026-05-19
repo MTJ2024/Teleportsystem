@@ -218,14 +218,27 @@ end)
 -- ==========================================================
 RegisterNetEvent('mtj_doors:client:teleport', function(coords, heading)
     local ped = PlayerPedId()
+    local vehicle = nil
+    if IsPedInAnyVehicle(ped, false) then
+        local currentVehicle = GetVehiclePedIsIn(ped, false)
+        if currentVehicle and currentVehicle ~= 0 and GetPedInVehicleSeat(currentVehicle, -1) == ped then
+            vehicle = currentVehicle
+        end
+    end
     if Config.FadeOnTeleport then
         DoScreenFadeOut(Config.FadeDuration)
         local t = 0
         while not IsScreenFadedOut() and t < 20 do Wait(50); t = t + 1 end
     end
 
-    SetEntityCoords(ped, coords.x, coords.y, coords.z - 0.95, false, false, false, false)
-    if heading then SetEntityHeading(ped, heading + 0.0) end
+    if vehicle then
+        SetEntityCoords(vehicle, coords.x, coords.y, coords.z - 0.95, false, false, false, false)
+        if heading then SetEntityHeading(vehicle, heading + 0.0) end
+        SetVehicleOnGroundProperly(vehicle)
+    else
+        SetEntityCoords(ped, coords.x, coords.y, coords.z - 0.95, false, false, false, false)
+        if heading then SetEntityHeading(ped, heading + 0.0) end
+    end
 
     if Config.FadeOnTeleport then
         Wait(200)

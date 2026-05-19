@@ -110,6 +110,7 @@ Config.MarkerAlpha = 150  -- 0-255
 Config.NpcPresets = {
     { id = 'security', label = 'Security / Wache', model = 's_m_m_security_01' },
     { id = 'business', label = 'Geschäftsmann',     model = 'a_m_y_business_01' },
+    { id = 'valet',    label = 'Valet / Parkservice', model = 's_m_y_valet_01'  },
     { id = 'doctor',   label = 'Arzt',              model = 's_m_m_doctor_01'   },
     { id = 'mechanic', label = 'Mechaniker',        model = 's_m_y_xmech_02'    },
     { id = 'cop',      label = 'Polizist',          model = 's_m_y_cop_01'      }

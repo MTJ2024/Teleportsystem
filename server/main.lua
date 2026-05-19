@@ -24,11 +24,24 @@ local function normalizePoint(point)
     return point
 end
 
+local function normalizeEnabled(value)
+    if value == nil then return true end
+    if type(value) == 'boolean' then return value end
+    if type(value) == 'number' then return value == 1 end
+    if type(value) == 'string' then
+        local v = value:lower()
+        if v == '1' or v == 'true' then return true end
+        if v == '0' or v == 'false' then return false end
+    end
+    return true
+end
+
 local function normalizeDoor(door)
     if type(door) ~= 'table' then return nil end
     door.interaction = type(door.interaction) == 'table' and door.interaction or {}
     door.entry = normalizePoint(door.entry)
     door.exitp = normalizePoint(door.exitp)
+    door.enabled = normalizeEnabled(door.enabled)
     return door
 end
 
@@ -50,7 +63,7 @@ function Storage.LoadAll(cb)
                     exitp       = json.decode(r.exitp or '{}'),
                     access      = json.decode(r.access or '{"type":"public"}'),
                     visibility  = r.visibility or Config.DefaultVisibilityRadius,
-                    enabled     = r.enabled == 1,
+                    enabled     = r.enabled,
                     created_by  = r.created_by
                 }
                 result[r.id] = normalizeDoor(result[r.id])

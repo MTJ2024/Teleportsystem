@@ -313,7 +313,7 @@ function openEditor(door) {
     fillPointCard('entry');
     fillPointCard('exitp');
 
-    // Dropdowns immer frisch befüllen
+    // Always refresh dropdowns in case jobs/licenses changed
     renderJobsDropdown();
     renderLicensesDropdown();
 

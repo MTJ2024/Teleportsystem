@@ -81,7 +81,7 @@ Config.FadeDuration      = 800              -- ms
 Config.MarkerPresets = {
     { id = 'arrow_down', label = 'Pfeil nach unten',  markerType = 27, size = {x=1.0, y=1.0, z=0.5},  bobUpAndDown = false, rotate = true  },
     { id = 'cylinder',   label = 'Zylinder',           markerType = 1,  size = {x=1.0, y=1.0, z=1.0},  bobUpAndDown = false, rotate = false },
-    { id = 'ring',       label = 'Ring (boden)',       markerType = 25, size = {x=1.2, y=1.2, z=1.2},  bobUpAndDown = false, rotate = true  },
+    { id = 'ring',       label = 'Ring (Boden)',       markerType = 25, size = {x=1.2, y=1.2, z=1.2},  bobUpAndDown = false, rotate = true  },
     { id = 'arrow_up',   label = 'Pfeil aufwärts',     markerType = 6,  size = {x=0.8, y=0.8, z=0.8},  bobUpAndDown = true,  rotate = false },
     { id = 'house',      label = 'Haus-Icon',          markerType = 36, size = {x=0.8, y=0.8, z=0.8},  bobUpAndDown = false, rotate = false },
     { id = 'crown',      label = 'Krone',              markerType = 22, size = {x=0.6, y=0.6, z=0.6},  bobUpAndDown = true,  rotate = false },

@@ -6,9 +6,12 @@
 */
 
 const RES = (() => {
-    // Resource-Name aus URL ableiten (https://mtj_doorsystem/html/index.html)
-    const m = window.location.host;
-    return m && m !== '' ? m : 'mtj_doorsystem';
+    if (typeof GetParentResourceName === 'function') {
+        const parent = GetParentResourceName();
+        if (parent && parent !== '') return parent;
+    }
+    const host = window.location.host;
+    return host && host !== '' ? host : 'mtj_doorsystem';
 })();
 
 const STATE = {

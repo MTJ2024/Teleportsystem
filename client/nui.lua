@@ -79,3 +79,8 @@ RegisterNUICallback('mtj:refresh', function(_, cb)
         cb(doors)
     end)
 end)
+
+AddEventHandler('onResourceStop', function(res)
+    if res ~= GetCurrentResourceName() then return end
+    closeDashboard()
+end)

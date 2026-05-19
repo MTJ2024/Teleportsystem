@@ -241,7 +241,7 @@ ESX.RegisterServerCallback('mtj_doors:cb:getJobs', function(src, cb)
     end)
 end)
 
-ESX.RegisterServerCallback('mtj_doors:cb:getJobGrades', function(src, jobName, cb)
+ESX.RegisterServerCallback('mtj_doors:cb:getJobGrades', function(src, cb, jobName)
     if not assertAdmin(src) then cb({}); return end
     MySQL.query('SELECT grade, label FROM job_grades WHERE job_name=? ORDER BY grade ASC', { jobName }, function(rows)
         cb(rows or {})

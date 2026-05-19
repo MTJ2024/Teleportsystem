@@ -171,7 +171,7 @@ local function BuildClientDoorList(src, cb)
     check()
 
     -- Falls keine Türen vorhanden, sofort callback
-    if next(Doors) == nil then cb({}) end
+    if next(Doors) == nil then return cb({}) end
 end
 
 local function isReturnEnabled(door)

@@ -1,0 +1,194 @@
+<!--
+==========================================================
+  MTJ Door System - DASHBOARD (Tablet)
+  Copyright © MTJScripts
+==========================================================
+-->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>MTJ Doors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="hidden">
+
+<div class="tablet-stage">
+  <div class="tablet">
+    <div class="notch"></div>
+
+    <div class="screen">
+
+      <header class="topbar">
+        <div class="brand">
+          <span class="logo">MTJ</span>
+          <span class="brand-sub">DOOR · SYSTEM</span>
+        </div>
+        <nav class="tabs">
+          <button class="tab active" data-tab="list">ÜBERSICHT</button>
+          <button class="tab" data-tab="editor">EDITOR</button>
+        </nav>
+        <div class="meta">
+          <span class="badge" id="doorCount">0 TÜREN</span>
+          <button class="closeBtn" id="closeBtn">✕</button>
+        </div>
+      </header>
+
+      <section class="panel" data-panel="list">
+        <div class="panel-head">
+          <h2>VERWALTETE EINGÄNGE</h2>
+          <div class="toolbar">
+            <input type="search" id="search" placeholder="Suche…" />
+            <button class="btn primary" id="newDoor">+ NEU ERSTELLEN</button>
+          </div>
+        </div>
+        <div class="grid" id="doorGrid"></div>
+        <div class="empty hidden" id="emptyHint">
+          NOCH KEINE TÜREN ANGELEGT<br>
+          <span class="sub">Klick auf „NEU ERSTELLEN"</span>
+        </div>
+      </section>
+
+      <section class="panel hidden" data-panel="editor">
+        <div class="panel-head">
+          <h2 id="editorTitle">NEUER EINGANG</h2>
+          <div class="toolbar">
+            <button class="btn ghost" id="cancelBtn">ABBRECHEN</button>
+            <button class="btn primary" id="saveBtn">SPEICHERN</button>
+          </div>
+        </div>
+
+        <div class="editor-grid">
+
+          <div class="card">
+            <h3>BASIS</h3>
+            <label>Label (interner Name)</label>
+            <input type="text" id="f_label" placeholder="z.B. Polizei HQ Haupteingang" />
+
+            <label>Status</label>
+            <div class="switch">
+              <input type="checkbox" id="f_enabled" checked />
+              <label for="f_enabled">Aktiv</label>
+            </div>
+
+            <label>Sichtbarkeitsradius: <span id="f_visLabel">15m</span></label>
+            <input type="range" id="f_vis" min="2" max="50" step="1" value="15" />
+          </div>
+
+          <div class="card point-card" data-point="entry">
+            <h3>EINGANG <span class="pin">▼</span></h3>
+            <div class="coord-row">
+              <input type="number" step="0.01" placeholder="X" data-axis="x" />
+              <input type="number" step="0.01" placeholder="Y" data-axis="y" />
+              <input type="number" step="0.01" placeholder="Z" data-axis="z" />
+              <input type="number" step="0.01" placeholder="H" data-axis="heading" />
+            </div>
+            <div class="coord-actions">
+              <button class="btn small" data-action="here">⊕ HIER SETZEN</button>
+              <button class="btn small ghost" data-action="pick">⌖ ANVISIEREN</button>
+            </div>
+
+            <label>Interaktionstext</label>
+            <input type="text" data-field="label" placeholder="[E] Betreten" />
+
+            <label>Typ</label>
+            <div class="radio-row">
+              <label><input type="radio" name="e_type" value="marker" checked /><span>Marker</span></label>
+              <label><input type="radio" name="e_type" value="invisible" /><span>Unsichtbar</span></label>
+              <label><input type="radio" name="e_type" value="npc" /><span>NPC</span></label>
+            </div>
+
+            <div class="marker-block">
+              <label>Marker-Stil</label>
+              <div class="chip-row marker-row"></div>
+              <label>Farbe</label>
+              <div class="chip-row color-row"></div>
+            </div>
+
+            <div class="npc-block hidden">
+              <label>NPC-Modell</label>
+              <div class="chip-row npc-row"></div>
+            </div>
+          </div>
+
+          <div class="card point-card" data-point="exitp">
+            <h3>AUSGANG <span class="pin">▲</span></h3>
+            <div class="coord-row">
+              <input type="number" step="0.01" placeholder="X" data-axis="x" />
+              <input type="number" step="0.01" placeholder="Y" data-axis="y" />
+              <input type="number" step="0.01" placeholder="Z" data-axis="z" />
+              <input type="number" step="0.01" placeholder="H" data-axis="heading" />
+            </div>
+            <div class="coord-actions">
+              <button class="btn small" data-action="here">⊕ HIER SETZEN</button>
+              <button class="btn small ghost" data-action="pick">⌖ ANVISIEREN</button>
+            </div>
+
+            <label>Interaktionstext</label>
+            <input type="text" data-field="label" placeholder="[E] Verlassen" />
+
+            <label>Typ</label>
+            <div class="radio-row">
+              <label><input type="radio" name="x_type" value="marker" checked /><span>Marker</span></label>
+              <label><input type="radio" name="x_type" value="invisible" /><span>Unsichtbar</span></label>
+              <label><input type="radio" name="x_type" value="npc" /><span>NPC</span></label>
+            </div>
+
+            <div class="marker-block">
+              <label>Marker-Stil</label>
+              <div class="chip-row marker-row"></div>
+              <label>Farbe</label>
+              <div class="chip-row color-row"></div>
+            </div>
+
+            <div class="npc-block hidden">
+              <label>NPC-Modell</label>
+              <div class="chip-row npc-row"></div>
+            </div>
+          </div>
+
+          <div class="card full">
+            <h3>BERECHTIGUNG</h3>
+            <div class="access-grid">
+              <div class="access-col">
+                <label>Zugriffstyp</label>
+                <select id="a_type">
+                  <option value="public">Öffentlich (alle)</option>
+                  <option value="job">Job</option>
+                  <option value="license">Lizenz</option>
+                  <option value="job_license">Job + Lizenz</option>
+                </select>
+              </div>
+
+              <div class="access-col ac-job hidden">
+                <label>Job</label>
+                <select id="a_job"></select>
+              </div>
+              <div class="access-col ac-job hidden">
+                <label>Mindest-Rang</label>
+                <select id="a_grade"></select>
+              </div>
+
+              <div class="access-col ac-license hidden">
+                <label>Lizenz</label>
+                <select id="a_license"></select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <div class="home-bar"></div>
+
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

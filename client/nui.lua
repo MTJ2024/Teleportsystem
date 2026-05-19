@@ -97,7 +97,7 @@ end)
 CreateThread(function()
     while true do
         if pendingEnterPoint then
-            if IsControlJustReleased(0, 191) then
+            if IsControlJustReleased(0, 191) then -- 191 = INPUT_FRONTEND_ACCEPT (ENTER key)
                 local c = GetEntityCoords(PlayerPedId())
                 local h = GetEntityHeading(PlayerPedId())
                 SetNuiFocus(true, true)

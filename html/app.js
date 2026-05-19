@@ -98,7 +98,7 @@ function mtjToast(msg, type = 'error') {
     if (!el) return;
     el.textContent = msg;
     el.className = 'mtj-toast' + (type === 'ok' ? ' mtj-toast--ok' : '');
-    void el.offsetWidth;
+    void el.offsetWidth; /* force reflow so CSS transition replays on repeated calls */
     el.classList.add('show');
     clearTimeout(_toastTimer);
     _toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
@@ -355,7 +355,7 @@ function buildDoorRow(d) {
     });
     tr.querySelector('[data-act="delete"]').addEventListener('click', async e => {
         e.stopPropagation();
-        if (!(await mtjConfirm(`TÜR "${escapeHTML((d.label || '#'+d.id)).toUpperCase()}" WIRKLICH LÖSCHEN?`))) return;
+        if (!(await mtjConfirm(`TÜR "${escapeHTML((d.label || '#' + d.id)).toUpperCase()}" WIRKLICH LÖSCHEN?`))) return;
         await nui('mtj:deleteDoor', { id: d.id });
         STATE.doors = STATE.doors.filter(x => x.id !== d.id);
         renderList();

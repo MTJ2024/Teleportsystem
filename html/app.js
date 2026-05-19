@@ -90,7 +90,40 @@ function applyConfigFallbacks(cfg) {
 }
 
 // ==========================================================
-//  OPEN / CLOSE
+//  CUSTOM DIALOGS
+// ==========================================================
+let _toastTimer = null;
+function mtjToast(msg, type = 'error') {
+    const el = document.getElementById('mtj-toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'mtj-toast' + (type === 'ok' ? ' mtj-toast--ok' : '');
+    void el.offsetWidth;
+    el.classList.add('show');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+let _confirmResolve = null;
+function mtjConfirm(msg) {
+    return new Promise(resolve => {
+        _confirmResolve = resolve;
+        document.getElementById('mtj-confirm-msg').textContent = msg;
+        document.getElementById('mtj-confirm').classList.add('show');
+    });
+}
+(function initConfirm() {
+    document.getElementById('mtj-confirm-yes').addEventListener('click', () => {
+        document.getElementById('mtj-confirm').classList.remove('show');
+        if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; }
+    });
+    document.getElementById('mtj-confirm-no').addEventListener('click', () => {
+        document.getElementById('mtj-confirm').classList.remove('show');
+        if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
+    });
+})();
+
+
 // ==========================================================
 window.addEventListener('message', (e) => {
     const m = e.data || {};
@@ -270,7 +303,7 @@ function bindPointCardListeners(point) {
         setActivePoint(point);
         const c = await nui('mtj:pickCoords', {});
         if (c && !c.error) applyCoords(point, c);
-        else alert('Kein Treffer beim Anvisieren.');
+        else { mtjToast('KEIN TREFFER BEIM ANVISIEREN'); }
     });
 }
 
@@ -286,53 +319,48 @@ function switchTab(tab) {
 //  LIST RENDER
 // ==========================================================
 function renderList() {
-    const grid = $('#doorGrid');
-    grid.innerHTML = '';
+    const tbody = document.getElementById('doorTableBody');
+    tbody.innerHTML = '';
     const q = ($('#search').value || '').toLowerCase();
     const filtered = STATE.doors.filter(d => (d.label || '').toLowerCase().includes(q));
     $('#doorCount').textContent = `${STATE.doors.length} TÜREN`;
     $('#emptyHint').classList.toggle('hidden', STATE.doors.length > 0);
-    filtered.forEach(d => grid.appendChild(buildDoorCard(d)));
+    filtered.forEach(d => tbody.appendChild(buildDoorRow(d)));
 }
 
-function buildDoorCard(d) {
-    const el = document.createElement('div');
-    el.className = 'door-card' + (d.enabled === false ? ' disabled' : '');
+function buildDoorRow(d) {
     const tag = accessTag(d.access);
-    el.innerHTML = `
-        <div class="dc-id">#${d.id ?? '—'}</div>
-        <div class="dc-label">${escapeHTML(d.label || 'UNBENANNT')}</div>
-        <div class="dc-meta">
-            <span class="${tag.cls}">${tag.text}</span>
-            <span>RADIUS ${Math.round(d.visibility || 15)}M</span>
-            <span>${(d.entry?.type || '—').toUpperCase()} → ${(d.exitp?.type || '—').toUpperCase()}</span>
-        </div>
-        <div class="dc-coords">
-            <b>IN </b>: ${fmtCoords(d.entry?.coords)}<br/>
-            <b>OUT</b>: ${fmtCoords(d.exitp?.coords)}
-        </div>
-        <div class="dc-actions">
+    const tr = document.createElement('tr');
+    if (d.enabled === false) tr.classList.add('row-disabled');
+    tr.innerHTML = `
+        <td class="td-id">#${d.id ?? '—'}</td>
+        <td class="td-label">${escapeHTML(d.label || 'UNBENANNT')}</td>
+        <td><span class="${tag.cls}">${tag.text}</span></td>
+        <td>${escapeHTML((d.entry?.type || '—').toUpperCase())} → ${escapeHTML((d.exitp?.type || '—').toUpperCase())}</td>
+        <td>${Math.round(d.visibility || 15)}M</td>
+        <td class="td-coords">${fmtCoords(d.entry?.coords)}</td>
+        <td class="td-coords">${fmtCoords(d.exitp?.coords)}</td>
+        <td class="td-actions">
             <button class="btn small" data-act="edit">BEARBEITEN</button>
-            <button class="btn small ghost" data-act="toggle">${d.enabled === false ? 'AKTIV.' : 'DEAKT.'}</button>
+            <button class="btn small ghost" data-act="toggle">${d.enabled === false ? 'AKTIVIEREN' : 'DEAKT.'}</button>
             <button class="btn small danger" data-act="delete">LÖSCHEN</button>
-        </div>`;
-
-    el.querySelector('[data-act="edit"]').addEventListener('click', e => { e.stopPropagation(); openEditor(d); });
-    el.querySelector('[data-act="toggle"]').addEventListener('click', async e => {
+        </td>`;
+    tr.querySelector('[data-act="edit"]').addEventListener('click', e => { e.stopPropagation(); openEditor(d); });
+    tr.querySelector('[data-act="toggle"]').addEventListener('click', async e => {
         e.stopPropagation();
         const newEnabled = !(d.enabled !== false);
         await nui('mtj:toggleDoor', { id: d.id, enabled: newEnabled });
         d.enabled = newEnabled;
         renderList();
     });
-    el.querySelector('[data-act="delete"]').addEventListener('click', async e => {
+    tr.querySelector('[data-act="delete"]').addEventListener('click', async e => {
         e.stopPropagation();
-        if (!confirm(`Tür "${d.label}" wirklich löschen?`)) return;
+        if (!(await mtjConfirm(`TÜR "${escapeHTML((d.label || '#'+d.id)).toUpperCase()}" WIRKLICH LÖSCHEN?`))) return;
         await nui('mtj:deleteDoor', { id: d.id });
         STATE.doors = STATE.doors.filter(x => x.id !== d.id);
         renderList();
     });
-    return el;
+    return tr;
 }
 
 function fmtCoords(c) {
@@ -552,24 +580,24 @@ async function refreshGrades(job, preselect) {
 async function saveCurrent() {
     const d = STATE.editing;
     if (!d) { return; }
-    if (!d.label || d.label.trim().length < 2) { alert('Bitte ein Label eingeben.'); return; }
+    if (!d.label || d.label.trim().length < 2) { mtjToast('BITTE EIN LABEL EINGEBEN'); return; }
 
     // Sanity check Koordinaten
     d.entry = normalizePointForSave(d.entry, 'entry');
     d.exitp = normalizePointForSave(d.exitp, 'exitp');
     const noEntry = !hasRealCoords(d.entry?.coords);
-    if (noEntry) { alert('Bitte zuerst den Eingang setzen.'); return; }
+    if (noEntry) { mtjToast('BITTE ZUERST DEN EINGANG SETZEN'); return; }
 
     // Access aufräumen
     d.access = d.access || { type: 'public' };
     if (d.access.type === 'public') {
         d.access = { type: 'public' };
     } else if (d.access.type === 'job') {
-        if (!d.access.job) { alert('Bitte einen Job auswählen.'); return; }
+        if (!d.access.job) { mtjToast('BITTE EINEN JOB AUSWÄHLEN'); return; }
     } else if (d.access.type === 'license') {
-        if (!d.access.license) { alert('Bitte eine Lizenz auswählen.'); return; }
+        if (!d.access.license) { mtjToast('BITTE EINE LIZENZ AUSWÄHLEN'); return; }
     } else if (d.access.type === 'job_license') {
-        if (!d.access.job || !d.access.license) { alert('Bitte Job UND Lizenz auswählen.'); return; }
+        if (!d.access.job || !d.access.license) { mtjToast('BITTE JOB UND LIZENZ AUSWÄHLEN'); return; }
     }
     d.interaction = d.interaction || {};
     d.interaction.returnEnabled = getReturnEnabled(d.interaction);

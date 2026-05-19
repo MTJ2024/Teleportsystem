@@ -220,10 +220,8 @@ RegisterNetEvent('mtj_doors:client:teleport', function(coords, heading)
     local ped = PlayerPedId()
     local vehicle = nil
     if IsPedInAnyVehicle(ped, false) then
-        local currentVehicle = GetVehiclePedIsIn(ped, false)
-        if currentVehicle and currentVehicle ~= 0 and GetPedInVehicleSeat(currentVehicle, -1) == ped then
-            vehicle = currentVehicle
-        end
+        local v = GetVehiclePedIsIn(ped, false)
+        if v and v ~= 0 then vehicle = v end
     end
     if Config.FadeOnTeleport then
         DoScreenFadeOut(Config.FadeDuration)

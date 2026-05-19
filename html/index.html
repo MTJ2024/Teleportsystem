@@ -45,7 +45,23 @@
             <button class="btn primary" id="newDoor">+ NEU ERSTELLEN</button>
           </div>
         </div>
-        <div class="grid" id="doorGrid"></div>
+        <div class="door-table-wrap">
+          <table class="door-table" id="doorGrid">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>NAME</th>
+                <th>ZUGANG</th>
+                <th>TYP</th>
+                <th>RADIUS</th>
+                <th>EINGANG</th>
+                <th>AUSGANG</th>
+                <th>AKTIONEN</th>
+              </tr>
+            </thead>
+            <tbody id="doorTableBody"></tbody>
+          </table>
+        </div>
         <div class="empty hidden" id="emptyHint">
           NOCH KEINE TÜREN ANGELEGT<br>
           <span class="sub">Klick auf „NEU ERSTELLEN"</span>
@@ -194,6 +210,18 @@
 
     <div class="home-bar"></div>
 
+  </div>
+</div>
+
+<!-- Custom dialog overlay -->
+<div id="mtj-toast" class="mtj-toast" role="alert" aria-live="assertive"></div>
+<div id="mtj-confirm" class="mtj-confirm-overlay" role="dialog" aria-modal="true">
+  <div class="mtj-confirm-box">
+    <div class="mtj-confirm-msg" id="mtj-confirm-msg"></div>
+    <div class="mtj-confirm-btns">
+      <button class="btn ghost" id="mtj-confirm-no">ABBRECHEN</button>
+      <button class="btn danger" id="mtj-confirm-yes">LÖSCHEN</button>
+    </div>
   </div>
 </div>
 

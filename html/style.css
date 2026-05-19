@@ -283,71 +283,138 @@ select option { background: #0a0a0a; color: #fff; }
 .btn.danger:hover { filter: brightness(1.15); }
 .btn.small { padding: 7px 12px; font-size: 13px; }
 
-/* ================ DOOR-LIST GRID ================ */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-    gap: 18px;
+/* ================ DOOR-LIST TABLE ================ */
+.door-table-wrap {
+    width: 100%;
+    overflow-x: auto;
 }
-
-.door-card {
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    padding: 20px;
-    position: relative;
-    transition: border-color .15s, transform .15s;
+.door-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--body);
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+.door-table thead tr {
+    background: var(--bg-card-2);
+    border-bottom: 2px solid var(--accent);
+}
+.door-table th {
+    font-family: var(--display);
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    padding: 10px 14px;
+    text-align: left;
+    white-space: nowrap;
+    font-weight: normal;
+}
+.door-table tbody tr {
+    border-bottom: 1px solid var(--line-soft);
+    transition: background .1s;
     cursor: pointer;
-    overflow: hidden;
 }
-.door-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,204,0,0.12); }
-.door-card::before {
-    content: ''; position: absolute; top: 0; left: 0;
-    width: 5px; height: 100%; background: var(--accent);
+.door-table tbody tr:hover { background: var(--bg-card); }
+.door-table tbody tr.row-disabled { opacity: 0.45; }
+.door-table td {
+    padding: 9px 14px;
+    color: var(--text-dim);
+    vertical-align: middle;
+    white-space: nowrap;
 }
-.door-card.disabled::before { background: var(--text-mute); }
-.door-card.disabled { opacity: 0.5; }
-
-.dc-id {
+.door-table td.td-id {
     font-family: var(--display);
     color: var(--accent);
     font-size: 14px;
     letter-spacing: 2px;
+    width: 54px;
 }
-.dc-label {
+.door-table td.td-label {
     font-family: var(--display);
-    font-size: 24px;
-    letter-spacing: 2px;
     color: var(--text);
-    margin: 4px 0 14px;
-    line-height: 1.1;
+    font-size: 17px;
+    letter-spacing: 1px;
+    min-width: 160px;
 }
-.dc-meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 10px; color: var(--text-dim); letter-spacing: 1px; margin-bottom: 14px; }
-.dc-meta span {
-    background: var(--bg-card-2); border: 1px solid var(--line);
-    padding: 4px 8px; text-transform: uppercase; font-weight: 600;
-}
-.dc-meta .tag-pub { background: var(--good); color: #000; border-color: var(--good); }
-.dc-meta .tag-job { background: var(--accent-2); color: #fff; border-color: var(--accent-2); }
-.dc-meta .tag-lic { background: var(--accent); color: #000; border-color: var(--accent); }
-
-.dc-coords {
+.door-table td.td-coords {
     font-family: 'Courier New', monospace;
     font-size: 11px;
-    color: var(--text-dim);
-    line-height: 1.7;
-    background: var(--bg-input);
-    padding: 8px 10px;
-    border: 1px dashed var(--line);
+    color: var(--text-mute);
+    min-width: 130px;
 }
-.dc-coords b { color: var(--accent); }
+.door-table td.td-actions {
+    white-space: nowrap;
+    width: 1%;
+}
+.door-table td.td-actions .btn { margin-right: 4px; }
+.door-table td .tag-pub  { background: var(--good);     color: #000; padding: 3px 8px; font-size: 10px; letter-spacing: 1px; font-weight: 700; display:inline-block; }
+.door-table td .tag-job  { background: var(--accent-2); color: #fff; padding: 3px 8px; font-size: 10px; letter-spacing: 1px; font-weight: 700; display:inline-block; }
+.door-table td .tag-lic  { background: var(--accent);   color: #000; padding: 3px 8px; font-size: 10px; letter-spacing: 1px; font-weight: 700; display:inline-block; }
 
-.dc-actions {
-    margin-top: 14px;
-    display: flex;
-    gap: 6px;
-    border-top: 1px solid var(--line);
-    padding-top: 12px;
+/* ================ CUSTOM DIALOGS ================ */
+.mtj-toast {
+    position: fixed;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-24px);
+    background: var(--danger);
+    color: #fff;
+    font-family: var(--display);
+    letter-spacing: 2px;
+    font-size: 17px;
+    padding: 14px 36px 14px 20px;
+    border-left: 5px solid #fff;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s, transform .18s;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    white-space: nowrap;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+.mtj-toast.mtj-toast--ok { background: var(--good); color: #000; border-color: #000; }
+.mtj-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: none;
+}
+
+.mtj-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s;
+}
+.mtj-confirm-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+}
+.mtj-confirm-box {
+    background: var(--bg-card);
+    border: 2px solid var(--danger);
+    padding: 36px 44px 28px;
+    min-width: 360px;
+    max-width: 90vw;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+}
+.mtj-confirm-msg {
+    font-family: var(--display);
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin-bottom: 28px;
+    line-height: 1.5;
+}
+.mtj-confirm-btns { display: flex; gap: 14px; justify-content: center; }
 
 .empty {
     padding: 80px;

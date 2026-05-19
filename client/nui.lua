@@ -18,6 +18,7 @@ local function openDashboard()
             ESX.TriggerServerCallback('mtj_doors:cb:getJobs', function(jobs)
                 nuiOpen = true
                 SetNuiFocus(true, true)
+                if SetNuiFocusKeepInput then SetNuiFocusKeepInput(true) end
                 SendNUIMessage({
                     action = 'open',
                     doors  = doors,
@@ -39,6 +40,7 @@ end
 
 local function closeDashboard()
     nuiOpen = false
+    if SetNuiFocusKeepInput then SetNuiFocusKeepInput(false) end
     SetNuiFocus(false, false)
     SendNUIMessage({ action = 'close' })
 end

@@ -19,6 +19,7 @@ const STATE = {
     jobs: [],
     cfg: { markers: [], colors: [], npcs: [], licenses: [], defaultR: 15, minR: 2, maxR: 50 },
     editing: null,
+    activePoint: 'entry',
     booted: false
 };
 
@@ -109,13 +110,35 @@ window.addEventListener('message', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeUI();
+    if (e.key === 'Escape') {
+        closeUI();
+        return;
+    }
+    if (e.key === 'Enter') {
+        quickSetCoordsFromEnter(e);
+    }
 });
 
 function closeUI() {
     nui('mtj:close');
     document.body.classList.add('hidden');
     STATE.editing = null;
+}
+
+function setActivePoint(point) {
+    STATE.activePoint = (point === 'exitp') ? 'exitp' : 'entry';
+    $$('.point-card').forEach(c => c.classList.toggle('active-point', c.dataset.point === STATE.activePoint));
+}
+
+async function quickSetCoordsFromEnter(e) {
+    if (!STATE.editing) return;
+    if ($('.panel[data-panel="editor"]').classList.contains('hidden')) return;
+    if (document.body.classList.contains('hidden')) return;
+    const activeTag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+    if (activeTag === 'textarea') return;
+    e.preventDefault();
+    const c = await nui('mtj:getCurrentCoords', {});
+    applyCoords(STATE.activePoint || 'entry', c);
 }
 
 // ==========================================================
@@ -135,6 +158,11 @@ function bindStaticListeners() {
     // Basis-Felder
     $('#f_label').addEventListener('input', e => { if (STATE.editing) STATE.editing.label = e.target.value; });
     $('#f_enabled').addEventListener('change', e => { if (STATE.editing) STATE.editing.enabled = e.target.checked; });
+    $('#f_return').addEventListener('change', e => {
+        if (!STATE.editing) return;
+        STATE.editing.interaction = STATE.editing.interaction || {};
+        STATE.editing.interaction.returnEnabled = e.target.checked;
+    });
     $('#f_vis').addEventListener('input', e => {
         $('#f_visLabel').textContent = e.target.value + 'm';
         if (STATE.editing) STATE.editing.visibility = parseFloat(e.target.value);
@@ -172,6 +200,8 @@ function bindStaticListeners() {
 
 function bindPointCardListeners(point) {
     const card = $(`.point-card[data-point="${point}"]`);
+    card.addEventListener('mousedown', () => setActivePoint(point));
+    card.addEventListener('focusin', () => setActivePoint(point));
 
     // Koordinaten-Inputs
     card.querySelectorAll('input[data-axis]').forEach(inp => {
@@ -209,11 +239,13 @@ function bindPointCardListeners(point) {
     // "Hier setzen" / "Anvisieren"
     card.querySelector('[data-action="here"]').addEventListener('click', async () => {
         if (!STATE.editing) return;
+        setActivePoint(point);
         const c = await nui('mtj:getCurrentCoords', {});
         applyCoords(point, c);
     });
     card.querySelector('[data-action="pick"]').addEventListener('click', async () => {
         if (!STATE.editing) return;
+        setActivePoint(point);
         const c = await nui('mtj:pickCoords', {});
         if (c && !c.error) applyCoords(point, c);
         else alert('Kein Treffer beim Anvisieren.');
@@ -307,6 +339,7 @@ function openEditor(door) {
     // Basis-Felder
     $('#f_label').value   = STATE.editing.label || '';
     $('#f_enabled').checked = STATE.editing.enabled !== false;
+    $('#f_return').checked = STATE.editing.interaction?.returnEnabled !== false;
     $('#f_vis').value     = STATE.editing.visibility || STATE.cfg.defaultR;
     $('#f_visLabel').textContent = $('#f_vis').value + 'm';
 
@@ -315,6 +348,7 @@ function openEditor(door) {
     buildChipRows('exitp');
     fillPointCard('entry');
     fillPointCard('exitp');
+    setActivePoint('entry');
 
     // Always refresh dropdowns in case jobs/licenses changed
     renderJobsDropdown();
@@ -347,7 +381,7 @@ function newDoorTemplate() {
         label: '',
         enabled: true,
         visibility: STATE.cfg.defaultR || 15,
-        interaction: {},
+        interaction: { returnEnabled: true },
         entry: pointTemplate('entry'),
         exitp: pointTemplate('exitp'),
         access: { type: 'public' }
@@ -356,7 +390,7 @@ function newDoorTemplate() {
 function pointTemplate(p) {
     const isEntry = (p === 'entry');
     return {
-        coords: { x: 0, y: 0, z: 0 },
+        coords: null,
         heading: 0,
         type: 'marker',
         label: isEntry ? '[E] Betreten' : '[E] Verlassen',
@@ -425,11 +459,11 @@ function fillPointCard(point) {
     const card = $(`.point-card[data-point="${point}"]`);
     STATE.editing[point] = STATE.editing[point] || pointTemplate(point);
     const p = STATE.editing[point];
-    p.coords = p.coords || { x:0,y:0,z:0 };
+    const coords = p.coords || {};
 
-    card.querySelector('[data-axis="x"]').value = p.coords.x ?? '';
-    card.querySelector('[data-axis="y"]').value = p.coords.y ?? '';
-    card.querySelector('[data-axis="z"]').value = p.coords.z ?? '';
+    card.querySelector('[data-axis="x"]').value = coords.x ?? '';
+    card.querySelector('[data-axis="y"]').value = coords.y ?? '';
+    card.querySelector('[data-axis="z"]').value = coords.z ?? '';
     card.querySelector('[data-axis="heading"]').value = p.heading ?? 0;
     card.querySelector('input[data-field="label"]').value = p.label || '';
 
@@ -499,11 +533,10 @@ async function saveCurrent() {
     if (!d.label || d.label.trim().length < 2) { alert('Bitte ein Label eingeben.'); return; }
 
     // Sanity check Koordinaten
-    const noEntry = !d.entry?.coords || (d.entry.coords.x === 0 && d.entry.coords.y === 0 && d.entry.coords.z === 0);
-    const noExit  = !d.exitp?.coords || (d.exitp.coords.x === 0 && d.exitp.coords.y === 0 && d.exitp.coords.z === 0);
-    if (noEntry || noExit) {
-        if (!confirm('Eingang oder Ausgang hat keine echten Koordinaten. Trotzdem speichern?')) return;
-    }
+    d.entry = normalizePointForSave(d.entry, 'entry');
+    d.exitp = normalizePointForSave(d.exitp, 'exitp');
+    const noEntry = !hasRealCoords(d.entry?.coords);
+    if (noEntry) { alert('Bitte zuerst den Eingang setzen.'); return; }
 
     // Access aufräumen
     d.access = d.access || { type: 'public' };
@@ -516,6 +549,8 @@ async function saveCurrent() {
     } else if (d.access.type === 'job_license') {
         if (!d.access.job || !d.access.license) { alert('Bitte Job UND Lizenz auswählen.'); return; }
     }
+    d.interaction = d.interaction || {};
+    d.interaction.returnEnabled = d.interaction.returnEnabled !== false;
 
     await nui('mtj:saveDoor', d);
     const fresh = await nui('mtj:refresh', {});
@@ -523,4 +558,29 @@ async function saveCurrent() {
     STATE.editing = null;
     renderList();
     switchTab('list');
+}
+
+function hasRealCoords(coords) {
+    if (!coords) return false;
+    const x = Number(coords.x);
+    const y = Number(coords.y);
+    const z = Number(coords.z);
+    if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) return false;
+    return !(x === 0 && y === 0 && z === 0);
+}
+
+function normalizePointForSave(point, pointKey) {
+    const p = Object.assign(pointTemplate(pointKey), point || {});
+    if (hasRealCoords(p.coords)) {
+        p.coords = {
+            x: Number(p.coords.x),
+            y: Number(p.coords.y),
+            z: Number(p.coords.z)
+        };
+        p.heading = Number.isFinite(Number(p.heading)) ? Number(p.heading) : 0;
+    } else {
+        p.coords = null;
+        p.heading = 0;
+    }
+    return p;
 }

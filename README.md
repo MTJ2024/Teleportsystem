@@ -18,6 +18,10 @@ kein Code-Edit nötig.
 - **Berechtigungen**: public · Job · Job+Rang · Lizenz · Job+Lizenz.
 - **Live-Erstellung** im Spiel: `Hier setzen` (aktuelle Position) oder
   `Anvisieren` (Crosshair-Raycast).
+- **ENTER-Setzen** im offenen Tablet: Punkt-Karte wählen, im Spiel an Position
+  laufen, `ENTER` drücken.
+- **Speichern ohne Ausgang** möglich (z.B. erst Eingang anlegen, Ausgang später).
+- **Rückweg-Toggle** pro Tür: Ausgang → Eingang kann ein-/ausgeschaltet werden.
 - **GTA V Stil** im Dashboard (Pricedown + Chalet Fonts).
 - **Storage**: MySQL (oxmysql) oder lokale JSON-Datei, in Config umschaltbar.
 - **Anti-Cheat**: Teleport-Permission wird serverseitig verifiziert.
@@ -82,11 +86,14 @@ kein Code-Edit nötig.
 
 1. Stell dich an die gewünschte Position für den **Eingang**.
 2. `/mtjdoors` → Tab **Editor** → Karte „Eingang" → **Hier setzen**.
+   Alternativ: Karte anklicken, zur Stelle laufen, **ENTER** drücken.
 3. Wähle Typ (Marker / Unsichtbar / NPC), Stil, Farbe.
 4. Gehe zur Ausgangsposition (z.B. Innenraum).
 5. Karte „Ausgang" → **Hier setzen** → Konfigurieren.
+   > Optional: Ausgang kann leer bleiben und später ergänzt werden.
 6. Optional: Berechtigung setzen (Job + Rang oder Lizenz).
-7. **Speichern** — die Tür ist sofort für berechtigte Spieler aktiv.
+7. Optional „Rückweg" aktivieren/deaktivieren (Ausgang → Eingang).
+8. **Speichern** — die Tür ist sofort für berechtigte Spieler aktiv.
 
 ### „Anvisieren" Modus
 Statt drauf zu stehen kannst du auf eine Tür zielen und **Anvisieren** klicken.

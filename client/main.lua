@@ -29,6 +29,13 @@ local function getNpcModel(id)
     return Config.NpcPresets[1].model
 end
 
+local function isReturnEnabled(door)
+    if type(door.interaction) == 'table' and door.interaction.returnEnabled == false then
+        return false
+    end
+    return true
+end
+
 -- ==========================================================
 -- NPC SPAWN
 -- ==========================================================
@@ -110,7 +117,13 @@ end
 -- BUILD / TEARDOWN DOOR
 -- ==========================================================
 local function buildDoor(door)
-    for _, pair in ipairs({{'entry','enter', door.entry}, {'exitp','exit', door.exitp}}) do
+    local points = {
+        {'entry', 'enter', door.entry}
+    }
+    if isReturnEnabled(door) then
+        points[#points+1] = {'exitp', 'exit', door.exitp}
+    end
+    for _, pair in ipairs(points) do
         local pkey, direction, point = pair[1], pair[2], pair[3]
         if point and point.coords then
             local key = ('mtj_door_%s_%s'):format(door.id, pkey)

@@ -147,6 +147,13 @@ local function BuildClientDoorList(src, cb)
     if next(Doors) == nil then cb({}) end
 end
 
+local function isReturnEnabled(door)
+    if type(door.interaction) == 'table' and door.interaction.returnEnabled == false then
+        return false
+    end
+    return true
+end
+
 -- ==========================================================
 -- CLIENT REQUESTS
 -- ==========================================================
@@ -162,6 +169,10 @@ RegisterNetEvent('mtj_doors:server:requestTeleport', function(doorId, direction)
     local src = source
     local door = Doors[doorId]
     if not door then return end
+    if direction == 'exit' and not isReturnEnabled(door) then
+        TriggerClientEvent('ox_lib:notify', src, { type='error', description='Rückweg ist deaktiviert.' })
+        return
+    end
     Permissions.PlayerHasAccess(src, door, function(allowed)
         if not allowed then
             TriggerClientEvent('ox_lib:notify', src, { type='error', description='Keine Berechtigung.' })

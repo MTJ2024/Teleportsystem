@@ -74,8 +74,16 @@
               <label for="f_enabled">Aktiv</label>
             </div>
 
+            <label>Rückweg</label>
+            <div class="switch">
+              <input type="checkbox" id="f_return" checked />
+              <label for="f_return">Ausgang zurück zum Eingang aktiv</label>
+            </div>
+
             <label>Sichtbarkeitsradius: <span id="f_visLabel">15m</span></label>
             <input type="range" id="f_vis" min="2" max="50" step="1" value="15" />
+            <label>Koordinaten setzen</label>
+            <div class="hint-inline">Punkt-Karte anklicken und dann ENTER drücken = aktuelle Position setzen.</div>
           </div>
 
           <div class="card point-card" data-point="entry">

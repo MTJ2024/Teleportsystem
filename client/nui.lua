@@ -6,6 +6,7 @@
 ]]
 
 local nuiOpen = false
+local pendingEnterPoint = nil
 local function round2(n) return math.floor((tonumber(n) or 0) * 100) / 100 end
 
 local function openDashboard()
@@ -41,6 +42,7 @@ end
 
 local function closeDashboard()
     nuiOpen = false
+    pendingEnterPoint = nil
     if SetNuiFocusKeepInput then SetNuiFocusKeepInput(false) end
     SetNuiFocus(false, false)
     SendNUIMessage({ action = 'close' })
@@ -83,15 +85,26 @@ RegisterNUICallback('mtj:refresh', function(_, cb)
     end)
 end)
 
+RegisterNUICallback('mtj:startEnterCoordMode', function(data, cb)
+    if not nuiOpen then cb({ ok = false }); return end
+    pendingEnterPoint = (data and data.point == 'exitp') and 'exitp' or 'entry'
+    if SetNuiFocusKeepInput then SetNuiFocusKeepInput(false) end
+    SetNuiFocus(false, false)
+    SendNUIMessage({ action = 'mtj:hideForEnterMode' })
+    cb({ ok = true })
+end)
+
 CreateThread(function()
     while true do
-        if nuiOpen then
-            -- 191 = INPUT_FRONTEND_ACCEPT (ENTER)
+        if pendingEnterPoint then
             if IsControlJustReleased(0, 191) then
                 local c = GetEntityCoords(PlayerPedId())
                 local h = GetEntityHeading(PlayerPedId())
+                SetNuiFocus(true, true)
+                if SetNuiFocusKeepInput then SetNuiFocusKeepInput(false) end
                 SendNUIMessage({
-                    action = 'mtj:hotkeyEnterSetCoords',
+                    action = 'mtj:reopenAfterEnterSet',
+                    point = pendingEnterPoint,
                     coords = {
                         x = round2(c.x),
                         y = round2(c.y),
@@ -99,6 +112,7 @@ CreateThread(function()
                         heading = round2(h)
                     }
                 })
+                pendingEnterPoint = nil
             end
             Wait(50)
         else
@@ -109,5 +123,6 @@ end)
 
 AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end
+    pendingEnterPoint = nil
     closeDashboard()
 end)

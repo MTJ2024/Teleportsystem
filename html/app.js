@@ -107,6 +107,17 @@ window.addEventListener('message', (e) => {
     } else if (m.action === 'close') {
         document.body.classList.add('hidden');
         STATE.editing = null;
+    } else if (m.action === 'mtj:hideForEnterMode') {
+        document.body.classList.add('hidden');
+    } else if (m.action === 'mtj:reopenAfterEnterSet') {
+        document.body.classList.remove('hidden');
+        if (!STATE.editing) return;
+        if ($('.panel[data-panel="editor"]').classList.contains('hidden')) {
+            switchTab('editor');
+        }
+        const point = (m.point === 'exitp') ? 'exitp' : 'entry';
+        setActivePoint(point);
+        applyCoords(point, m.coords || null);
     } else if (m.action === 'mtj:hotkeyEnterSetCoords') {
         if (!STATE.editing || document.body.classList.contains('hidden')) return;
         if ($('.panel[data-panel="editor"]').classList.contains('hidden')) return;
@@ -148,8 +159,8 @@ async function quickSetCoordsFromEnter(e) {
     if (activeTag === 'textarea' || activeTag === 'input' || activeTag === 'select') return;
     if (document.activeElement && document.activeElement.isContentEditable) return;
     e.preventDefault();
-    const c = await nui('mtj:getCurrentCoords', {});
-    applyCoords(STATE.activePoint || 'entry', c);
+    const point = STATE.activePoint || 'entry';
+    await nui('mtj:startEnterCoordMode', { point });
 }
 
 // ==========================================================

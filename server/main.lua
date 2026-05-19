@@ -10,6 +10,28 @@ ESX = exports['es_extended']:getSharedObject()
 local Doors = {}     -- in-memory cache: [id] = doorData
 local JsonPath = GetResourcePath(GetCurrentResourceName()) .. '/server/data/doors.json'
 
+local function normalizeCoords(coords)
+    if type(coords) ~= 'table' then return nil end
+    local x, y, z = tonumber(coords.x), tonumber(coords.y), tonumber(coords.z)
+    if not x or not y or not z then return nil end
+    return { x = x, y = y, z = z }
+end
+
+local function normalizePoint(point)
+    if type(point) ~= 'table' then return {} end
+    point.coords = normalizeCoords(point.coords)
+    point.heading = tonumber(point.heading) or 0
+    return point
+end
+
+local function normalizeDoor(door)
+    if type(door) ~= 'table' then return nil end
+    door.interaction = type(door.interaction) == 'table' and door.interaction or {}
+    door.entry = normalizePoint(door.entry)
+    door.exitp = normalizePoint(door.exitp)
+    return door
+end
+
 -- ==========================================================
 -- STORAGE LAYER
 -- ==========================================================
@@ -31,6 +53,7 @@ function Storage.LoadAll(cb)
                     enabled     = r.enabled == 1,
                     created_by  = r.created_by
                 }
+                result[r.id] = normalizeDoor(result[r.id])
             end
             cb(result)
         end)
@@ -40,7 +63,11 @@ function Storage.LoadAll(cb)
         if not f then cb({}) return end
         local content = f:read('*a'); f:close()
         local ok, data = pcall(json.decode, content)
-        cb(ok and data or {})
+        if not ok or type(data) ~= 'table' then cb({}); return end
+        for id, door in pairs(data) do
+            data[id] = normalizeDoor(door)
+        end
+        cb(data)
     end
 end
 
@@ -179,8 +206,9 @@ RegisterNetEvent('mtj_doors:server:requestTeleport', function(doorId, direction)
             return
         end
         local target = (direction == 'enter') and door.exitp or door.entry
-        if not target or not target.coords then return end
-        TriggerClientEvent('mtj_doors:client:teleport', src, target.coords, target.heading)
+        local coords = target and normalizeCoords(target.coords) or nil
+        if not coords then return end
+        TriggerClientEvent('mtj_doors:client:teleport', src, coords, target.heading)
     end)
 end)
 
@@ -223,6 +251,11 @@ end)
 RegisterNetEvent('mtj_doors:server:save', function(doorData)
     local src = source
     if not assertAdmin(src) then return end
+    doorData = normalizeDoor(doorData) or {}
+    if not doorData.entry or not doorData.entry.coords then
+        TriggerClientEvent('ox_lib:notify', src, { type='error', description='Eingang-Koordinaten fehlen.' })
+        return
+    end
     doorData.created_by = doorData.created_by or (ESX.GetPlayerFromId(src) and ESX.GetPlayerFromId(src).identifier or 'admin')
     Storage.Save(doorData, function(id)
         doorData.id = id

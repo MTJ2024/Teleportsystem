@@ -29,6 +29,12 @@ local function getNpcModel(id)
     return Config.NpcPresets[1].model
 end
 
+local function hasCoords(coords)
+    if type(coords) ~= 'table' then return false end
+    local x, y, z = tonumber(coords.x), tonumber(coords.y), tonumber(coords.z)
+    return x ~= nil and y ~= nil and z ~= nil
+end
+
 local function isReturnEnabled(door)
     if type(door.interaction) == 'table' and door.interaction.returnEnabled == false then
         return false
@@ -125,7 +131,7 @@ local function buildDoor(door)
     end
     for _, pair in ipairs(points) do
         local pkey, direction, point = pair[1], pair[2], pair[3]
-        if point and point.coords then
+        if point and hasCoords(point.coords) then
             local key = ('mtj_door_%s_%s'):format(door.id, pkey)
             if point.type == 'npc' then
                 spawnNpc(key, point.coords, point.heading, point.npc)
@@ -182,7 +188,7 @@ CreateThread(function()
             local radius = door.visibility or Config.DefaultVisibilityRadius
             for _, pkey in ipairs({'entry','exitp'}) do
                 local point = (pkey == 'entry') and door.entry or door.exitp
-                if point and point.coords and point.type == 'marker' then
+                if point and hasCoords(point.coords) and point.type == 'marker' then
                     local dist = #(pc - vec3(point.coords.x, point.coords.y, point.coords.z))
                     if dist <= radius then
                         sleep = 0

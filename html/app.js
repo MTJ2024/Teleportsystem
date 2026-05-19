@@ -106,6 +106,10 @@ window.addEventListener('message', (e) => {
     } else if (m.action === 'close') {
         document.body.classList.add('hidden');
         STATE.editing = null;
+    } else if (m.action === 'mtj:hotkeyEnterSetCoords') {
+        if (!STATE.editing || document.body.classList.contains('hidden')) return;
+        if ($('.panel[data-panel="editor"]').classList.contains('hidden')) return;
+        applyCoords(STATE.activePoint || 'entry', m.coords || null);
     }
 });
 

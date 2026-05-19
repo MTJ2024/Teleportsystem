@@ -6,6 +6,7 @@
 ]]
 
 local nuiOpen = false
+local function round2(n) return math.floor((tonumber(n) or 0) * 100) / 100 end
 
 local function openDashboard()
     if nuiOpen then return end
@@ -80,6 +81,29 @@ RegisterNUICallback('mtj:refresh', function(_, cb)
     ESX.TriggerServerCallback('mtj_doors:cb:getAll', function(doors)
         cb(doors)
     end)
+end)
+
+CreateThread(function()
+    while true do
+        if nuiOpen then
+            if IsControlJustReleased(0, 191) then
+                local c = GetEntityCoords(PlayerPedId())
+                local h = GetEntityHeading(PlayerPedId())
+                SendNUIMessage({
+                    action = 'mtj:hotkeyEnterSetCoords',
+                    coords = {
+                        x = round2(c.x),
+                        y = round2(c.y),
+                        z = round2(c.z),
+                        heading = round2(h)
+                    }
+                })
+            end
+            Wait(0)
+        else
+            Wait(500)
+        end
+    end
 end)
 
 AddEventHandler('onResourceStop', function(res)

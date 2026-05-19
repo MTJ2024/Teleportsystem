@@ -576,7 +576,7 @@ function hasRealCoords(coords) {
     const y = Number(coords.y);
     const z = Number(coords.z);
     if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) return false;
-    return !(x === 0 && y === 0 && z === 0);
+    return true;
 }
 
 function normalizePointForSave(point, pointKey) {

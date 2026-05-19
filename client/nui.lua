@@ -100,7 +100,7 @@ CreateThread(function()
                     }
                 })
             end
-            Wait(10)
+            Wait(50)
         else
             Wait(500)
         end

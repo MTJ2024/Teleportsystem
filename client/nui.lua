@@ -86,6 +86,7 @@ end)
 CreateThread(function()
     while true do
         if nuiOpen then
+            -- 191 = INPUT_FRONTEND_ACCEPT (ENTER)
             if IsControlJustReleased(0, 191) then
                 local c = GetEntityCoords(PlayerPedId())
                 local h = GetEntityHeading(PlayerPedId())
@@ -99,7 +100,7 @@ CreateThread(function()
                     }
                 })
             end
-            Wait(0)
+            Wait(10)
         else
             Wait(500)
         end

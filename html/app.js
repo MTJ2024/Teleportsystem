@@ -144,7 +144,8 @@ async function quickSetCoordsFromEnter(e) {
     if ($('.panel[data-panel="editor"]').classList.contains('hidden')) return;
     if (document.body.classList.contains('hidden')) return;
     const activeTag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
-    if (activeTag === 'textarea') return;
+    if (activeTag === 'textarea' || activeTag === 'input' || activeTag === 'select') return;
+    if (document.activeElement && document.activeElement.isContentEditable) return;
     e.preventDefault();
     const c = await nui('mtj:getCurrentCoords', {});
     applyCoords(STATE.activePoint || 'entry', c);

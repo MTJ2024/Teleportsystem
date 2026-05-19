@@ -146,6 +146,8 @@ end)
 -- HELPER: Filter Doors für Client (mit Zugriffsprüfung)
 -- ==========================================================
 local function BuildClientDoorList(src, cb)
+    if next(Doors) == nil then return cb({}) end
+
     local list = {}
     local pending = 0
     local done = false
@@ -169,9 +171,6 @@ local function BuildClientDoorList(src, cb)
 
     done = true
     check()
-
-    -- Falls keine Türen vorhanden, sofort callback
-    if next(Doors) == nil then return cb({}) end
 end
 
 local function isReturnEnabled(door)
